@@ -386,3 +386,68 @@ ls -la ~/Downloads/CV_MATCHING-main/GiaiDoan1_Preprocess_Code/models/e5_syntheti
 > - **Terminal 2**: `npm run dev` (Cổng 3000 – Giao diện)
 
 ---
+
+## 🚀 HƯỚNG DẪN CHẠY DỰ ÁN TRÊN MÁY MỚI
+
+Để chạy dự án này trên một máy tính khác, hãy thực hiện theo các bước sau:
+
+### 1. Tải mã nguồn
+```bash
+git clone https://github.com/NguyenTrungHieu-23013003/NCKH.git
+cd NCKH
+```
+
+### 2. Cài đặt Backend (AI Engine)
+- Yêu cầu: **Python 3.8+**
+```bash
+cd GiaiDoan1_Preprocess_Code
+# Tạo môi trường ảo
+python3 -m venv venv
+source venv/bin/activate  # (Windows: venv\Scripts\activate)
+
+# Cài đặt thư viện
+pip install -r requirements.txt
+pip install torch sentence-transformers fastapi uvicorn pdfplumber python-docx
+```
+- **Lưu ý:** Lần đầu chạy, hệ thống sẽ tự động tải mô hình `multilingual-e5-small` từ HuggingFace (khoảng 400MB).
+
+### 3. Cài đặt Frontend (Giao diện)
+- Yêu cầu: **Node.js 18+**
+```bash
+cd ../frontend
+npm install
+```
+
+### 4. Khởi chạy hệ thống
+Bạn cần mở 2 Terminal song song:
+- **Terminal 1 (Backend):** 
+  ```bash
+  cd GiaiDoan1_Preprocess_Code
+  source venv/bin/activate
+  python3 api_server.py
+  ```
+- **Terminal 2 (Frontend):**
+  ```bash
+  cd frontend
+  npm run dev
+  ```
+👉 Truy cập giao diện tại: `http://localhost:3000`
+
+---
+
+## 🛠️ QUY TRÌNH CẬP NHẬT CODE LÊN GITHUB (Dành cho tác giả)
+
+Mỗi khi bạn sửa code và muốn lưu lại lên GitHub, hãy dùng bộ lệnh "sạch" này:
+
+1. **Kiểm tra thay đổi:** `git status`
+2. **Lưu thay đổi:**
+   ```bash
+   git add .
+   git commit -m "Mô tả việc bạn vừa làm (vd: Sửa lỗi giao diện)"
+   ```
+3. **Đẩy lên mạng:**
+   ```bash
+   git push origin main
+   ```
+
+*Lưu ý: Nếu gặp lỗi bảo mật API Key, hãy đảm bảo bạn không dán trực tiếp Key vào code mà hãy dùng file `.env`.*
