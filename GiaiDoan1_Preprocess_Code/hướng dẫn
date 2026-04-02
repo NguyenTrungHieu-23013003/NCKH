@@ -1,0 +1,36 @@
+cài đặt các thư viện sau:
+pip install pandas
+pip install sentence-transformers
+pip install langdetect
+pip install underthesea
+pip install scikit-learn
+pip install openpyxl
+
+bước1:
+    gõ    Ctrl + Shift + P
+    gõ    Python: Select Interpreter
+    chọn  Python 3.x (Recommended)
+bước2:
+    gõ    Ctrl + `
+    gõ    pip install pandas openpyxl scikit-learn underthesea sentence-transformers
+bước3:
+    kiểm tra lại folder:
+    GIAIDOAN1_PREPROCESS_CODE
+        │
+        ├── data
+        │   ├── cvs
+        │   └── jds
+        │
+        ├── Resume.csv
+        ├── JobsDataset.csv
+        │
+        ├── convert_dataset_to_txt.py
+        ├── preprocess.py
+        ├── ai_model.py
+        ├── ai_cv_suggestion.py
+        └── run_pipeline.py
+bước4:
+    trong terminal
+    gõ    python run_pipeline.py
+bước5:
+    tận hưởng

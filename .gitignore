@@ -1,0 +1,34 @@
+# Python virtual environment
+venv/
+.venv/
+env/
+
+# Data and Models
+models/
+checkpoints/
+
+# Datasets (Large files)
+GiaiDoan1_Preprocess_Code/JobsDataset.csv
+GiaiDoan1_Preprocess_Code/Resume.csv
+GiaiDoan1_Preprocess_Code/processed_data.csv
+
+# Compiled files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Environment variables
+.env
+
+# OS files
+.DS_Store
+Thumbs.db
+# Researchers Dataset (Keep small only)
+GiaiDoan1_Preprocess_Code/data/
+GiaiDoan1_Preprocess_Code/__pycache__/
+
+# Frontend
+**/node_modules/
+**/.next/
+frontend/out/

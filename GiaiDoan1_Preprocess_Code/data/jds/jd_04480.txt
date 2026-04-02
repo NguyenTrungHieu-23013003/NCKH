@@ -1,0 +1,1 @@
+The GSOC Intelligence Analyst, assigned to a specific client, oversees the daily operations of the Global Security Operations Center. The Analyst will vet potential and/or actual crisis response activations. DETAILS

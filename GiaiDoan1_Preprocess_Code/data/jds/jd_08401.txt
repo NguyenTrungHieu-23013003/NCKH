@@ -1,0 +1,1 @@
+Duration: 6-12 months contract with a possibility of extension Location: Seattle, WA Rate: Open Job Description:- Micro-services: Need a Sr Developer with good experience in implementing Micro-Services. 5+ years of experience in Spring/Spring-boot framework, REST API development 2+ years of experience in Microservices development Experience working in Cloud platforms such as PCF

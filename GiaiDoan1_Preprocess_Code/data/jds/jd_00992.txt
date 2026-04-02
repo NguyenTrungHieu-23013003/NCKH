@@ -1,0 +1,1 @@
+Who are Passionate in solving real-world big data problems Leading highly skilled teams Enjoying slicing and dicing of data Hands on with Pig, Scala, Java, Shell Script, Python, R MapReduce, Scalding, Spark, Storm Hive, HBase, Cassendra, ElasticSearch, Solr Kafka, NiFi, Sqoop

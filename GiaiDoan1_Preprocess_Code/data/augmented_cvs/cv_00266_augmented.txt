@@ -1,0 +1,38 @@
+======================================================================
+ORIGINAL CV (CORRECTED)
+======================================================================
+
+information technology student career overview results driven database administrator with extensive education in programming relational database management and computer technology maintenance qualifications database servers structured query language sql expert programming and design skills document management strong collaborative skills strong analytical skills customer needs assessment excellent problem solving skills technical skills skills experience total years last used windows unix linux mac osx vmware http apache dns bind ssh snmp dns dhcp ftp intermediate 2 may 2016 accomplishments customer service managed customers effectively by identifying needs quickly gaining trust approaching complex situations and resolving problems to maximize efficiency data preparation prepared chain of custody packets for title sale reviews of procedures and fees services justification administration performed administration tasks such as filing developing spreadsheets faxing reports photocopying collateral and scanning documents for inter departmental use reporting maintained status reports to provide management with updated information for client projects application design used object oriented design programming to design new stand alone application planned installed configured and monitored document management infrastructure coordinated scheduled software and hardware patches upgrades and enhancements to platforms collaborated with it teams to design and implement continuous process improvements to prevent production application incidents work experience Company name january 2014 to current information technology student city state presented multiple projects including vpn rdms and it proposals to several classes and instructors worked independently and as part of a team to achieve most equitable outcome Company name september 2010 to october 2013 foreclosure processor paralegal city state diligently reviewed the specialty loan portfolio for compliance with all reporting requirements communicated regularly with management regarding portfolio performance and new loan transaction quality maintained confidentiality of bank records and client information scanned and filed forms reports correspondence and receipts entered information into computer databases reviewed files to check for complete and accurate information examined deeds of trust to determine the grantor grantee trustee and loan amount coordinated with multiple departments regarding responsive documents and document retention researched bankruptcy loan files to confirm federal guideline compliance supported a team of three attorneys with generating and filing of pleadings motions and multiple court documents Company name february 2008 to may 2008 toefl tesl instructor city state developed interesting course plans to meet academic intellectual and social needs of students developed and implemented and optimized interesting and interactive learning mediums to increase student understanding of course materials performed student background reviews to develop tailored lessons based on student needs developed administered and corrected tests and quizzes in a timely manner combined discipline plan with effective measures and multiple lesson plans to increase concentration participation and progress student accountability designed lesson plans focused on age and level appropriate material education and training san diego state University 2006 bachelor of arts english city state united states skills microsoft word excel access sql server vba visual studio
+
+======================================================================
+SUPPLEMENTARY SECTIONS (AUTO-GENERATED)
+======================================================================
+
+PROFESSIONAL OBJECTIVE (AUTO-GENERATED)
+This CV demonstrates strong qualifications for CV-JD matching system. Please review and customize this section with your specific career goals.
+
+
+
+======================================================================
+IMPROVEMENT SUMMARY
+======================================================================
+
+✓ FIXES APPLIED TO ORIGINAL CV:
+  • Grammar and spelling corrections
+  • Date format standardization (MM/DD/YYYY → MM/YYYY)
+  • Weak language replaced with strong action verbs
+  • Passive voice converted to active voice
+  • Redundancy removed
+  • Whitespace and formatting cleaned
+  • Bullet points standardized
+
+✓ SECTIONS ADDED:
+  • Objective
+
+✓ PROFESSIONAL QUALITY:
+  • Total sections present: 5
+  • Ready for ATS scanning and recruiter review
+  • Formatted for maximum readability
+
+NOTE: Please review all corrections and replace placeholder information
+with your actual experience and achievements.
