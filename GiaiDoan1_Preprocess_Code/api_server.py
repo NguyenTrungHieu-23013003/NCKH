@@ -105,6 +105,10 @@ class BatchMatchRequest(BaseModel):
     jd: str
     cvs: List[BatchCV]
 
+class CVImprovementRequest(BaseModel):
+    jd: str
+    cv: str
+
 @app.post("/api/batch-match")
 async def batch_match_cv_jd(data: BatchMatchRequest):
     """Xử lý HÀNG LOẠT CV bằng Batch Encoding (Tối ưu NCKH)"""
@@ -282,6 +286,207 @@ async def match_cv_jd(data: MatchRequest):
 
     except Exception as e:
         return {"error": str(e)}
+
+
+# =========================================================
+# CHỨC NĂNG MỚI: SỰ CỎN CƯ CHỈNH SỬA CV TỰ ĐỘNG
+# =========================================================
+@app.post("/api/suggest-cv-improvements")
+async def suggest_cv_improvements(data: CVImprovementRequest):
+    """
+    Phân tích CV và gợi ý cách chỉnh sửa để khớp hơn với JD.
+    
+    Trả về:
+    - missing_skills: Các kỹ năng cần thêm
+    - suggestions: Danh sách gợi ý cụ thể để chỉnh sửa CV
+    - rewritten_sections: Các đoạn CV được viết lại để phù hợp hơn
+    """
+    try:
+        jd_raw, cv_raw = data.jd, data.cv
+        if not jd_raw or not cv_raw:
+            raise HTTPException(status_code=400, detail="Dữ liệu không được để trống")
+
+        # 1. Trích xuất Keywords từ JD và CV
+        jd_keys = extract_keywords(jd_raw)
+        cv_keys = extract_keywords(cv_raw)
+        matched = jd_keys.intersection(cv_keys)
+        missing = jd_keys.difference(cv_keys)
+        critical_missing = CRITICAL_SKILLS.intersection(missing)
+
+        # 2. Phân tích JD để tìm yêu cầu chính
+        jd_requirements = _extract_job_requirements(jd_raw, jd_keys)
+
+        # 3. Tạo danh sách gợi ý cụ thể
+        suggestions = []
+        priority_mapping = {}  # Lưu trữ prioritize cho từng kỹ năng
+
+        # Gợi ý 1: Thêm từ khóa công nghệ thiếu
+        if missing:
+            missing_sorted = sorted(list(missing))
+            if critical_missing:
+                suggestions.append({
+                    "type": "ADD_CRITICAL_SKILLS",
+                    "priority": "HIGH",
+                    "title": "🚨 Thêm kỹ năng bắt buộc",
+                    "description": f"JD bắt buộc yêu cầu: {', '.join(sorted(critical_missing))}. CV của bạn chưa nhắc đến các kỹ năng này.",
+                    "action": f"Thêm vào phần 'Kỹ năng' hoặc mô tả công việc: {', '.join(critical_missing)}",
+                    "example": f"Ví dụ: 'Kinh nghiệm với {critical_missing.pop()} trong các dự án thực tế'"
+                })
+                # Phục hồi critical_missing
+                critical_missing = CRITICAL_SKILLS.intersection(missing)
+
+            non_critical_missing = set(missing_sorted) - CRITICAL_SKILLS
+            if non_critical_missing:
+                suggestions.append({
+                    "type": "ADD_OPTIONAL_SKILLS",
+                    "priority": "MEDIUM",
+                    "title": "💡 Bổ sung kỹ năng bổ trợ",
+                    "description": f"JD nhắc đến: {', '.join(sorted(non_critical_missing))}. Nên thêm nếu bạn có kinh nghiệm.",
+                    "action": f"Xem xét thêm: {', '.join(sorted(non_critical_missing))}",
+                    "example": f"Ví dụ: 'Có kinh nghiệm cơ bản với {non_critical_missing.pop()}'"
+                })
+
+        # Gợi ý 2: Tối ưu hóa phần Summary/Objective
+        job_titles_in_jd = _extract_job_titles(jd_raw)
+        if job_titles_in_jd:
+            suggestions.append({
+                "type": "OPTIMIZE_SUMMARY",
+                "priority": "HIGH",
+                "title": "✒️ Viết lại Objective/Summary",
+                "description": "Phần mở đầu CV nên phản ánh rõ lĩnh vực/vị trí mục tiêu.",
+                "action": f"Thay đổi: 'Seeking {job_titles_in_jd[0]} with strong background in {', '.join(list(matched)[:3]) if matched else 'relevant'} technologies'",
+                "example": f"Thay vì 'Looking for a good opportunity', hãy viết: '{job_titles_in_jd[0]} with expertise in {', '.join(list(matched)[:2]) if matched else 'technology implementation'}'"
+            })
+
+        # Gợi ý 3: Sắp xếp lại phần Experience
+        if missing and matched:
+            suggestions.append({
+                "type": "PRIORITIZE_EXPERIENCE",
+                "priority": "MEDIUM",
+                "title": "👨‍💼 Sắp xếp lại phần kinh nghiệm",
+                "description": f"Các công việc liên quan đến {', '.join(list(matched)[:2])} nên được đặt lên trên cùng.",
+                "action": "Sắp xếp lại Experience section: những công việc sử dụng công nghệ trong JD lên trên.",
+                "example": "Nếu có kinh nghiệm làm Backend, hãy đặt job đó trước job Frontend nếu JD tìm Backend"
+            })
+
+        # Gợi ý 4: Thêm mô tả chi tiết hơn cho các kỹ năng có
+        if matched:
+            suggestions.append({
+                "type": "ENHANCE_SKILL_DESCRIPTION",
+                "priority": "MEDIUM",
+                "title": "📝 Mô tả chi tiết hơn các kỹ năng đã có",
+                "description": f"CV có {len(matched)}/{len(jd_keys)} kỹ năng yêu cầu. Cần làm rõ hơn bằng cách thêm context.",
+                "action": f"Cho mỗi công việc, thêm: 'Dùng {', '.join(list(matched)[:2])} để xây dựng...' hoặc 'Đạt giải thưởng/chỉ tiêu khi áp dụng {', '.join(list(matched)[:2])}'",
+                "example": "Thay vì 'Used Python', hãy viết: 'Developed data pipeline using Python and SQL, processing 10M+ records daily'"
+            })
+
+        # Gợi ý 5: Bổ sung phần Projects nếu cần
+        if critical_missing:
+            suggestions.append({
+                "type": "ADD_PROJECTS",
+                "priority": "HIGH",
+                "title": "🛠️ Bổ sung phần Projects",
+                "description": f"Để bù đắp khoảng trống về {', '.join(list(critical_missing)[:2])}, hãy thêm phần 'Side Projects'.",
+                "action": "Thêm section 'Projects' với các dự án free/personal project sử dụng công nghệ bắt buộc",
+                "example": f"Ví dụ: 'Xây dựng {critical_missing.pop()}-based web app với [các kỹ năng]' (ngay cả hobby project cũng được)"
+            })
+
+        # 4. Tạo phần CV viết lại mẫu
+        rewritten_summary = _generate_improved_cv_summary(
+            cv_raw, jd_keys, matched, job_titles_in_jd
+        )
+
+        # Sắp xếp gợi ý theo priority
+        high_priority = [s for s in suggestions if s.get("priority") == "HIGH"]
+        medium_priority = [s for s in suggestions if s.get("priority") == "MEDIUM"]
+        suggestions = high_priority + medium_priority
+
+        return {
+            "success": True,
+            "analysis": {
+                "matched_skills": sorted(list(matched)),
+                "missing_skills": sorted(list(missing)),
+                "critical_missing": sorted(list(critical_missing)),
+                "match_percentage": round(len(matched) / len(jd_keys) * 100, 1) if jd_keys else 0
+            },
+            "suggestions": suggestions,
+            "improved_summary": rewritten_summary,
+            "action_steps": [
+                f"1. Ưu tiên thêm: {', '.join(list(critical_missing)[:3]) if critical_missing else 'các kỹ năng bắt buộc'}",
+                f"2. Viết lại Objective để phù hợp với '{job_titles_in_jd[0] if job_titles_in_jd else 'vị trí tìm kiếm'}'",
+                f"3. Làm nổi bật {len(matched)} kỹ năng bạn đã có: {', '.join(list(matched)[:3])}",
+                "4. Thêm examples/metrics cụ thể cho mỗi kỹ năng",
+                "5. Bộ sơ cấu trúc lại: Experience → Projects → Skills"
+            ]
+        }
+
+    except Exception as e:
+        import traceback
+        print(traceback.format_exc())
+        return {"error": str(e)}
+
+
+# =========================================================
+# HỖ TRỢ: Các hàm phụ trợ cho chức năng suggestions
+# =========================================================
+def _extract_job_titles(text: str) -> List[str]:
+    """Trích xuất các tiêu đề công việc phổ biến từ JD"""
+    job_titles = []
+    common_titles = [
+        "software engineer", "developer", "backend", "frontend", "full-stack",
+        "data scientist", "machine learning engineer", "devops", "cloud architect",
+        "product manager", "project manager", "qa engineer", "data engineer"
+    ]
+    text_lower = text.lower()
+    for title in common_titles:
+        if title in text_lower:
+            job_titles.append(title.title())
+    return job_titles[:3] if job_titles else ["Software Professional"]
+
+
+def _extract_job_requirements(text: str, skills: Set[str]) -> Dict[str, List[str]]:
+    """Phân tích JD để tìm các yêu cầu chính"""
+    requirements = {
+        "core_skills": list(skills)[:5],
+        "experience_years": [],
+        "education": []
+    }
+    
+    # Tìm kinh nghiệm năm
+    years_pattern = r"(\d+)\s*(?:\+)?\s*years?"
+    years_matches = re.findall(years_pattern, text.lower())
+    if years_matches:
+        requirements["experience_years"] = years_matches
+    
+    return requirements
+
+
+def _generate_improved_cv_summary(cv_text: str, jd_keys: Set[str], 
+                                   matched: Set[str], job_titles: List[str]) -> str:
+    """
+    Tạo phiên bản CV tóm tắt được cải thiện
+    """
+    title = job_titles[0] if job_titles else "Professional"
+    matched_str = ", ".join(list(matched)[:3]) if matched else "relevant technologies"
+    
+    improved = f"""
+    **[IMPROVED OBJECTIVE]**
+    
+    Experienced {title} with strong expertise in {matched_str}. 
+    Proven track record in building scalable solutions and delivering results.
+    Seeking to leverage skills in {', '.join(list(jd_keys)[:3])} to contribute to your team's success.
+    
+    **[KEY ENHANCEMENTS]**
+    1. Specific skills mentioned: Focus on {matched_str}
+    2. Measurable achievements: Add metrics (e.g., "Improved performance by X%", "Led team of Y people")
+    3. Relevant projects: Highlight work using {', '.join(list(jd_keys)[:2])}
+    
+    **[SUGGESTED SKILLS SECTION]**
+    Core: {', '.join(list(matched))}
+    To Add: {', '.join(list(jd_keys - matched)[:3])}
+    """
+    
+    return improved.strip()
 
 
 # =========================================================

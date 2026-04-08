@@ -1,0 +1,113 @@
+====================================
+JOB DESCRIPTION: SENIOR BACKEND ENGINEER
+====================================
+
+Company: CloudTech Solutions
+Position: Senior Backend Engineer
+Location: Hanoi, Vietnam
+Job Type: Full-time
+Experience Required: 3+ years
+
+====================================
+ABOUT US
+====================================
+
+CloudTech Solutions is a leading provider of cloud-based data analytics and backend infrastructure solutions. We serve 500+ companies across Southeast Asia with scalable, secure, and innovative technology solutions.
+
+====================================
+ROLE OVERVIEW
+====================================
+
+We are seeking a Senior Backend Engineer to join our growing platform team. You will be responsible for designing, building, and maintaining scalable backend systems that process millions of data points daily. You'll work with cutting-edge technologies and collaborate with a talented team of engineers.
+
+====================================
+KEY RESPONSIBILITIES
+====================================
+
+- Design and develop microservices using Python and FastAPI
+- Build and optimize complex SQL queries for large-scale databases (PostgreSQL, MySQL)
+- Implement caching strategies using Redis to improve system performance
+- Set up and maintain Docker containerization for applications
+- Manage AWS infrastructure including EC2, RDS, S3, and Lambda
+- Implement CI/CD pipelines using GitHub Actions or similar tools
+- Write clean, testable code with comprehensive unit tests (Pytest)
+- Collaborate with frontend engineers and data scientists
+- Participate in code reviews and mentor junior developers
+- Troubleshoot and debug production issues
+
+====================================
+REQUIRED SKILLS
+====================================
+
+MUST-HAVE:
+- 3+ years of backend development experience
+- Strong proficiency in Python programming
+- Expert-level SQL knowledge (complex queries, optimization, indexing)
+- Experience with relational databases (PostgreSQL or MySQL)
+- Docker containerization and container orchestration
+- AWS cloud services (EC2, RDS, S3, as minimum)
+- Git version control
+- REST API design and implementation
+- Unit testing (Pytest or similar frameworks)
+
+NICE-TO-HAVE:
+- Kubernetes experience
+- Message queue systems (RabbitMQ, Kafka)
+- NoSQL databases (MongoDB, Cassandra)
+- FastAPI or similar modern Python frameworks
+- Machine Learning fundamentals
+- Terraform or Infrastructure as Code
+- GraphQL experience
+
+====================================
+PREFERRED QUALIFICATIONS
+====================================
+
+- Bachelor's degree in Computer Science or related field
+- Experience with agile development methodologies
+- Understanding of microservices architecture
+- Familiarity with monitoring and logging tools (ELK, Datadog)
+- Open source contribution experience
+- AWS certification
+
+====================================
+WHAT WE OFFER
+====================================
+
+- Competitive salary: 25-35 million VND/month (based on experience)
+- Performance bonuses
+- Professional development budget: 5 million VND/year
+- Health insurance and comprehensive benefits
+- Flexible working hours (8:30 AM - 6:00 PM or remote options)
+- Modern office in Hanoi with relaxation areas
+- Team building activities and company trips
+- Career advancement opportunities
+
+====================================
+TECHNICAL REQUIREMENTS
+====================================
+
+- Can write production-ready Python code
+- Can optimize database queries for performance
+- Can containerize applications with Docker
+- Can deploy applications to AWS
+- Can design and implement REST APIs
+- Can write testable code with >80% coverage
+
+====================================
+APPLICATION PROCESS
+====================================
+
+1. Submit resume and cover letter
+2. Technical assessment (2 hours) - Coding challenge
+3. System design interview (1.5 hours)
+4. Behavioral interview with manager
+5. HR discussion and final offer
+
+====================================
+APPLICATION DEADLINE
+====================================
+
+Applications accepted until: 30/04/2026
+Contact: hiring@cloudtech.com
+Position Code: SBE-2026-001

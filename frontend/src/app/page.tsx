@@ -5,7 +5,7 @@ import ReactMarkdown from "react-markdown";
 import {
   Sparkles, CheckCircle2, XCircle, FileText, Briefcase,
   AlertTriangle, Upload, X, FileType2, BarChart3, CopyPlus,
-  Trophy, Users, Filter, ChevronRight, GraduationCap, Clock
+  Trophy, Users, Filter, ChevronRight, GraduationCap, Clock, Lightbulb
 } from "lucide-react";
 
 // ─── Types ───────────────────────────────────────────────
@@ -132,6 +132,8 @@ export default function AI_CV_Matcher_Pro() {
   // Results
   const [resultData, setResultData] = useState<any>(null);
   const [leaderboard, setLeaderboard] = useState<BatchResult[]>([]);
+  const [suggestions, setSuggestions] = useState<any>(null);
+  const [loadingSuggestions, setLoadingSuggestions] = useState(false);
 
   // Lắng nghe sự kiện load file hàng loạt
   React.useEffect(() => {
@@ -173,6 +175,23 @@ export default function AI_CV_Matcher_Pro() {
     if (s === "EXCELLENT") return "text-emerald-400 bg-emerald-400/10 border-emerald-400/20";
     if (s === "POTENTIAL") return "text-violet-400 bg-violet-400/10 border-violet-400/20";
     return "text-slate-400 bg-slate-800 border-slate-700";
+  };
+
+  const handleGetSuggestions = async () => {
+    if (!cvPanel.text || !jdPanel.text) return alert("Please provide both CV and JD");
+    setLoadingSuggestions(true);
+    try {
+      const res = await fetch("http://localhost:5000/api/suggest-cv-improvements", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ jd: jdPanel.text, cv: cvPanel.text })
+      });
+      setSuggestions(await res.json());
+    } catch (e) {
+      alert("Error fetching suggestions");
+    } finally {
+      setLoadingSuggestions(false);
+    }
   };
 
   return (
@@ -230,6 +249,113 @@ export default function AI_CV_Matcher_Pro() {
                     <div className="max-w-md bg-[#121124] p-4 rounded-xl border border-violet-500/10 text-xs italic text-slate-300">
                        <ReactMarkdown>{resultData.explanation}</ReactMarkdown>
                     </div>
+                 </div>
+
+                 {/* CV IMPROVEMENT SUGGESTIONS SECTION */}
+                 <div className="mt-8 pt-8 border-t border-slate-700">
+                   <button
+                     onClick={handleGetSuggestions}
+                     disabled={loadingSuggestions}
+                     className="mb-6 bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2 rounded-lg flex items-center gap-2 transition-all font-semibold disabled:opacity-50 text-sm"
+                   >
+                     {loadingSuggestions ? (
+                       <><Clock className="w-4 h-4 animate-spin" /> Generating Suggestions...</>
+                     ) : (
+                       <><Sparkles className="w-4 h-4" /> Get CV Improvement Tips</>
+                     )}
+                   </button>
+
+                   {suggestions && !suggestions.error && (
+                     <div className="space-y-6">
+                       {/* ANALYSIS SUMMARY */}
+                       <div className="grid grid-cols-4 gap-4">
+                         <div className="bg-slate-900/50 border border-slate-700/50 rounded-lg p-4 text-center border-l-2 border-l-emerald-500">
+                           <div className="text-lg font-bold text-emerald-400">{suggestions.analysis.matched_skills?.length || 0}</div>
+                           <div className="text-[10px] text-slate-500 mt-1">Matched Skills</div>
+                         </div>
+                         <div className="bg-slate-900/50 border border-slate-700/50 rounded-lg p-4 text-center border-l-2 border-l-amber-500">
+                           <div className="text-lg font-bold text-amber-400">{suggestions.analysis.missing_skills?.length || 0}</div>
+                           <div className="text-[10px] text-slate-500 mt-1">Missing Skills</div>
+                         </div>
+                         <div className="bg-slate-900/50 border border-slate-700/50 rounded-lg p-4 text-center border-l-2 border-l-red-500">
+                           <div className="text-lg font-bold text-red-400">{suggestions.analysis.critical_missing?.length || 0}</div>
+                           <div className="text-[10px] text-slate-500 mt-1">Critical Missing</div>
+                         </div>
+                         <div className="bg-slate-900/50 border border-slate-700/50 rounded-lg p-4 text-center border-l-2 border-l-violet-500">
+                           <div className="text-lg font-bold text-violet-400">{suggestions.analysis.match_percentage || 0}%</div>
+                           <div className="text-[10px] text-slate-500 mt-1">Match Percentage</div>
+                         </div>
+                       </div>
+
+                       {/* ACTION STEPS */}
+                       {suggestions.action_steps && (
+                         <div className="bg-slate-900/50 border border-slate-700/30 rounded-lg p-4">
+                           <h4 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
+                             <CheckCircle2 className="w-4 h-4 text-emerald-400" /> Action Steps
+                           </h4>
+                           <ol className="space-y-2 text-xs text-slate-300">
+                             {suggestions.action_steps.map((step: string, i: number) => (
+                               <li key={i} className="text-slate-400">
+                                 <ReactMarkdown>{step}</ReactMarkdown>
+                               </li>
+                             ))}
+                           </ol>
+                         </div>
+                       )}
+
+                       {/* IMPROVEMENT SUGGESTIONS */}
+                       <div className="space-y-3">
+                         <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                           <Sparkles className="w-4 h-4 text-amber-400" /> Detailed Suggestions
+                         </h4>
+                         {suggestions.suggestions?.map((sugg: any, i: number) => (
+                           <div
+                             key={i}
+                             className={`border-l-4 rounded-lg p-4 bg-slate-900/30 transition-all ${
+                               sugg.priority === "HIGH"
+                                 ? "border-l-red-500 border-red-500/10"
+                                 : "border-l-amber-500 border-amber-500/10"
+                             }`}
+                           >
+                             <div className="flex items-start justify-between mb-2">
+                               <h5 className="font-bold text-white text-sm flex items-center gap-2">
+                                 {sugg.title}
+                               </h5>
+                               <span className={`px-2 py-0.5 rounded text-[9px] font-bold ${
+                                 sugg.priority === "HIGH"
+                                   ? "bg-red-500/20 text-red-300"
+                                   : "bg-amber-500/20 text-amber-300"
+                               }`}>
+                                 {sugg.priority}
+                               </span>
+                             </div>
+                             <p className="text-xs text-slate-400 mb-2">{sugg.description}</p>
+                             <div className="bg-[#06080D] rounded p-2 mb-2 border border-slate-800">
+                               <p className="text-[10px] font-mono text-emerald-400 mb-1">
+                                 <strong>Action:</strong>
+                               </p>
+                               <p className="text-[10px] text-slate-300">{sugg.action}</p>
+                             </div>
+                             {sugg.example && (
+                               <div className="text-[10px] text-slate-500 italic">
+                                 <strong>Example:</strong> {sugg.example}
+                               </div>
+                             )}
+                           </div>
+                         ))}
+                       </div>
+
+                       {/* IMPROVED SUMMARY */}
+                       {suggestions.improved_summary && (
+                         <div className="bg-slate-900/50 border border-violet-500/20 rounded-lg p-4">
+                           <h4 className="text-sm font-bold text-violet-400 mb-3">📝 Improved CV Summary</h4>
+                           <div className="bg-[#06080D] rounded p-3 text-xs text-slate-300 max-h-64 overflow-y-auto font-mono">
+                             <ReactMarkdown>{suggestions.improved_summary}</ReactMarkdown>
+                           </div>
+                         </div>
+                       )}
+                     </div>
+                   )}
                  </div>
               </div>
             )}

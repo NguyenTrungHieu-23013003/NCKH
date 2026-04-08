@@ -1,0 +1,76 @@
+====================================
+NGUYỄN VĂN A
+Email: nguyenvana@gmail.com | Phone: 0123456789 | GitHub: github.com/nguyenvana
+====================================
+
+OBJECTIVE
+Experienced Backend Developer seeking a challenging role to leverage Python, SQL, and cloud technologies expertise. Passionate about scalable system design and data optimization.
+
+====================================
+PROFESSIONAL EXPERIENCE
+====================================
+
+Senior Backend Engineer | TechCorp Vietnam | Jan 2022 - Present
+- Designed and implemented microservices architecture using Python and FastAPI for payment processing system
+- Optimized database queries reducing response time by 40% using SQL indexing and caching strategies
+- Deployed applications on AWS EC2 and RDS, managing CI/CD pipelines with Docker and GitHub Actions
+- Mentored 3 junior developers on Python best practices and code review processes
+- Database: PostgreSQL, MySQL; Cache: Redis
+
+Backend Developer | StartupXYZ | Jun 2020 - Dec 2021
+- Built RESTful APIs using Python Django and Node.js for e-commerce platform
+- Implemented real-time notification system using WebSockets and message queues (RabbitMQ)
+- Wrote comprehensive unit tests achieving 85% code coverage with pytest
+- Collaborated with DevOps team to containerize applications using Docker
+- Tech Stack: Python, JavaScript, SQL, MongoDB
+
+Junior Developer | WebAgency | Jan 2020 - May 2020
+- Developed backend features for internal tools using Python
+- Assisted in database schema design and optimization
+- Participated in agile development sprints
+
+====================================
+TECHNICAL SKILLS
+====================================
+
+Languages: Python, JavaScript, SQL, Bash
+Frameworks: FastAPI, Django, Node.js, Express.js
+Databases: PostgreSQL, MySQL, MongoDB, Redis
+Cloud & DevOps: AWS (EC2, RDS, S3), Docker, GitHub Actions, Linux
+Tools & Libraries: Git, Pytest, Postman, Pandas, NumPy
+
+====================================
+PROJECTS
+====================================
+
+AI Chatbot API | Personal Project | 2023
+- Built REST API for AI chatbot using FastAPI and OpenAI API
+- Deployed on AWS with auto-scaling using Docker and Lambda
+- Achieved 99.9% uptime with load balancing
+
+E-Commerce Platform | Academic Project | 2021
+- Full-stack e-commerce system using Python Django backend
+- Integrated Stripe payment gateway
+- Deployed with Docker and managed with Docker Compose
+
+====================================
+EDUCATION
+====================================
+
+Bachelor of Science in Information Technology | University of Technology | 2020
+- GPA: 3.7/4.0
+- Relevant Coursework: Data Structures, Databases, Software Engineering, Web Development
+
+====================================
+CERTIFICATIONS
+====================================
+
+- AWS Certified Cloud Practitioner (2022)
+- Python Professional Certificate (2021)
+
+====================================
+LANGUAGES
+====================================
+
+- Vietnamese: Native
+- English: Fluent (TOEIC 800)

@@ -29,8 +29,8 @@ def main():
     # ========================================================
     # KỸ THUẬT HARD NEGATIVE MINING (Bí kíp chống Overfitting)
     # ========================================================
-    # Điểm yếu của code cũ: Chỉ dạy AI nhìn nhận CV đúng (Positive).
-    # Code mới: Dạy AI nhìn thấy CV Đúng và CV Cố Tình Làm Sai (Hard Negative).
+    # Điểm yếu cũ: Chỉ dạy AI nhìn nhận CV đúng (Positive).
+    # Dạy AI nhìn thấy CV Đúng và CV Cố Tình Làm Sai (Hard Negative).
     # Gom nhóm theo JD_Text:
     grouped = df.groupby('JD_Text')
     triplets = []
