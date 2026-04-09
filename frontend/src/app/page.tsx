@@ -155,19 +155,33 @@ export default function AI_CV_Matcher_Pro() {
       } catch (e) { alert("Server Error"); } finally { setAnalyzing(false); }
     } else {
       // BATCH MODE
-      if (!jdPanel.text || batchData.length === 0) return alert("Please provide JD and multiple CVs");
+      let finalBatch = batchData;
+      
+      // Nếu người dùng không upload file mà lại dán text vào textarea
+      if (finalBatch.length === 0 && cvPanel.text.trim()) {
+        // Tách các CV dựa trên dấu hiệu phân cách (dòng bắt đầu bằng CV_ hoặc --- hoặc 2 dấu xuống dòng)
+        const parts = cvPanel.text.split(/\n(?=CV_)|---|\n\n\n/).filter(p => p.trim());
+        finalBatch = parts.map((p, i) => ({
+          name: p.split('\n')[0].substring(0, 30) || `Pasted CV ${i + 1}`,
+          text: p
+        }));
+      }
+
+      if (!jdPanel.text || finalBatch.length === 0) return alert("Please provide JD and multiple CVs (Upload files or Paste with separators)");
+      
       setAnalyzing(true); setShowResult(false);
       try {
         const res = await fetch("http://localhost:5000/api/batch-match", {
           method: "POST", headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ 
             jd: jdPanel.text, 
-            cvs: batchData.map(b => ({ id: b.name, text: b.text })) 
+            cvs: finalBatch.map(b => ({ id: b.name, text: b.text })) 
           })
         });
         const data = await res.json();
+        if (data.error) throw new Error(data.error);
         setLeaderboard(data.leaderboard); setShowResult(true);
-      } catch (e) { alert("Batch API Error"); } finally { setAnalyzing(false); }
+      } catch (e: any) { alert("Batch API Error: " + e.message); } finally { setAnalyzing(false); }
     }
   };
 

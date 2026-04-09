@@ -23,7 +23,8 @@ app.add_middleware(
 )
 
 MODEL_PATH = "/home/hieu/Downloads/CV_MATCHING-main/GiaiDoan1_Preprocess_Code/models/e5_synthetic_model"
-device = "cuda" if torch.cuda.is_available() else "cpu"
+# ÉP CHẠY TRÊN CPU ĐỂ TIẾT KIỆM RAM (Tránh lag máy IdeaPad 8GB)
+device = "cpu" 
 
 try:
     model = SentenceTransformer(MODEL_PATH, device=device)
@@ -135,8 +136,15 @@ async def batch_match_cv_jd(data: BatchMatchRequest):
 
         # 3. BATCH ENCODING (Đây là phần tối ưu chính)
         # Thay vì loop, ta đẩy cả List vào model
+        # 3. BATCH ENCODING (Tối ưu: thêm batch_size để không gây spike RAM quá lớn)
         print(f"⚡ Batch Processing {len(cv_texts)} CVs...")
-        all_cv_embs = model.encode(cv_texts, convert_to_tensor=True, normalize_embeddings=True) # (N, 384)
+        all_cv_embs = model.encode(
+            cv_texts, 
+            batch_size=8, 
+            convert_to_tensor=True, 
+            normalize_embeddings=True,
+            show_progress_bar=True
+        ) # (N, 384)
 
         # 4. Tính toán Similarity hàng loạt bằng Ma trận
         # Cosine Similarity của vector đã normalize = Dot Product
