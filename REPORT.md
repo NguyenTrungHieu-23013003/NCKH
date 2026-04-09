@@ -149,7 +149,7 @@ CV_MATCHING-main/
 
 ---
 
-### 🌐 NHÓM 6: Giao Diện (Frontend)
+### 🌐 6: Giao Diện (Frontend)
 
 #### `frontend/src/app/page.tsx` – **Dashboard MatchAI Pro**
 - **Vai trò**: Giao diện người dùng hiển thị kết quả AI cho HR
