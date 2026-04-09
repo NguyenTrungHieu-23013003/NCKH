@@ -2,15 +2,20 @@ import re
 import io
 import torch
 import numpy as np
+import os
 from fastapi import FastAPI, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from sentence_transformers import SentenceTransformer, util
 from typing import List, Set, Dict, Optional
+from dotenv import load_dotenv
+from groq import Groq
 
-# =========================================================
-# 1. CẤU HÌNH & LOAD MODEL (OPTIMIZED)
-# =========================================================
+# Load environment variables
+load_dotenv()
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+groq_client = Groq(api_key=GROQ_API_KEY) if GROQ_API_KEY else None
+
 app = FastAPI(title="AI CV Matcher Pro", version="10.0")
 
 # THÊM CORS ĐỂ FRONTEND GỌI ĐƯỢC API
@@ -82,7 +87,8 @@ def get_embedding(text: str, prefix: str = "passage: "):
     words = text.split()
     chunks = [" ".join(words[i:i + max_length]) for i in range(0, len(words), max_length)]
     
-    if not chunks: return None
+    if not chunks: 
+        return torch.zeros((1, 384))
     
     # Thêm prefix cho mỗi chunk
     prefixed_chunks = [f"{prefix}{chunk}" for chunk in chunks]
@@ -94,9 +100,16 @@ def get_embedding(text: str, prefix: str = "passage: "):
 # =========================================================
 # 5. CORE MATCHING LOGIC
 # =========================================================
+class QAAnswer(BaseModel):
+    question_id: str
+    question_text: str
+    answer: str
+    type: str # "YES_NO" or "TEXT"
+
 class MatchRequest(BaseModel):
     jd: str
     cv: str
+    qa_answers: Optional[List[QAAnswer]] = None
 
 class BatchCV(BaseModel):
     id: str # ID hoặc tên file
@@ -109,6 +122,63 @@ class BatchMatchRequest(BaseModel):
 class CVImprovementRequest(BaseModel):
     jd: str
     cv: str
+
+class QuestionRequest(BaseModel):
+    jd: str
+
+@app.post("/api/generate-questions")
+async def generate_questions(data: QuestionRequest):
+    """Sử dụng Llama-3 để sinh câu hỏi sàng lọc từ JD"""
+    if not groq_client:
+        return {"error": "Groq API Key not configured"}
+    
+    try:
+        prompt = f"""
+        Dựa vào Job Description (JD) sau đây, hãy tạo tối đa 5 câu hỏi sàng lọc ứng viên.
+        Yêu cầu:
+        1. 2 câu hỏi dạng 'YES_NO' cho các yêu cầu bắt buộc (Hard Filter).
+        2. 3 câu hỏi dạng 'TEXT' về kiến thức chuyên môn sâu (Soft Scoring).
+        3. Các câu hỏi phải xoáy sâu vào các kỹ năng cốt lõi trong JD.
+        4. Trả về định dạng JSON thuần túy (Array of Objects), không có văn bản giải thích nào khác.
+        
+        Định dạng mẫu:
+        [
+          {{"id": "q1", "text": "...", "type": "YES_NO"}},
+          {{"id": "q2", "text": "...", "type": "TEXT"}}
+        ]
+        
+        JD: {data.jd[:2000]}
+        """
+        
+        completion = groq_client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[{"role": "user", "content": prompt}],
+            response_format={"type": "json_object"} if "llama-3.1" in "llama-3.3-70b-versatile" else None
+        )
+        
+        response_content = completion.choices[0].message.content
+        # Trích xuất JSON nếu LLM trả lời kèm text
+        import json
+        try:
+            questions = json.loads(response_content)
+            # Nếu Groq trả về object có key "questions" hoặc tương tự
+            if isinstance(questions, dict):
+                for key in ["questions", "data", "result"]:
+                    if key in questions:
+                        questions = questions[key]
+                        break
+        except:
+            # Fallback regex nếu JSON bị lỗi nhẹ
+            match = re.search(r'\[\s*\{.*\}\s*\]', response_content, re.DOTALL)
+            if match:
+                questions = json.loads(match.group())
+            else:
+                raise Exception("Could not parse AI response as JSON")
+
+        return {"success": True, "questions": questions[:5]}
+    except Exception as e:
+        print(f"Error generating questions: {e}")
+        return {"error": str(e)}
 
 @app.post("/api/batch-match")
 async def batch_match_cv_jd(data: BatchMatchRequest):
@@ -215,33 +285,64 @@ async def match_cv_jd(data: MatchRequest):
         # 4. Tính điểm Keyword
         kw_score = len(matched) / len(jd_keys) if jd_keys else norm_semantic
 
-        # 5. Công thức Hybrid (AI 70% + Keyword 30%)
-        final_score = (norm_semantic * 0.70 + kw_score * 0.30) * 100
+        # 5. [NEW] Chấm điểm Q&A (Hybrid Screening)
+        qa_score = 1.0 # Mặc định 100% nếu không có Q&A
+        qa_penalty = 0
+        qa_critique = ""
+        
+        if data.qa_answers:
+            correct_qa = 0
+            total_qa = len(data.qa_answers)
+            for qa in data.qa_answers:
+                if qa.type == "YES_NO":
+                    ans_clean = qa.answer.strip().lower()
+                    if ans_clean == "" or ans_clean in ["no", "không", "n"]:
+                        qa_penalty += 15 # Trừ 15 điểm mỗi câu Hard Filter "No" hoặc bỏ trống
+                else:
+                    # Dùng E5 đo độ khớp câu trả lời với JD
+                    ans_emb = get_embedding(clean_text(qa.answer), prefix="passage: ")
+                    # So sánh với JD (đã có jd_emb)
+                    ans_sim = util.cos_sim(ans_emb, jd_emb).item()
+                    # Normalize sim của câu trả lời (thường thấp hơn CV nên offset khác)
+                    norm_ans = max(0.0, min(1.0, (ans_sim - 0.70) / 0.20))
+                    correct_qa += norm_ans
+            
+            # Tính trung bình điểm Q&A (chỉ tính cho phần TEXT)
+            text_q_count = len([q for q in data.qa_answers if q.type == "TEXT"])
+            if text_q_count > 0:
+                qa_score = correct_qa / text_q_count
+            
+            qa_critique = f" (Xác minh Q&A: {qa_score*100:.1f}%)"
 
-        # 6. Penalty & Logic bổ trợ
+        # 6. Công thức Hybrid Nâng cao (AI 50% + Keywords 20% + QA 30%)
+        # Nếu không có QA thì giữ tỷ lệ cũ (70-30)
+        if data.qa_answers:
+            final_score = (norm_semantic * 0.50 + kw_score * 0.20 + qa_score * 0.30) * 100
+            final_score -= qa_penalty
+        else:
+            final_score = (norm_semantic * 0.70 + kw_score * 0.30) * 100
+
+        # 7. Penalty & Logic bổ trợ
         critical_missing = CRITICAL_SKILLS.intersection(missing)
-        final_score -= (len(critical_missing) * 8) # Trừ 8 điểm/skill quan trọng
+        final_score -= (len(critical_missing) * 8) 
 
         if len(jd_keys) > 0 and len(matched) == 0:
-            final_score *= 0.5 # Phạt nặng nếu không trùng từ khóa nào
+            final_score *= 0.5 
 
-        final_score = max(5.0, min(99.5, round(final_score, 1)))
+        final_score = max(5.0, min(99.8, round(final_score, 1)))
 
-        # 7. Phân loại ứng viên
+        # 8. Phân loại ứng viên
         status = "REJECTED"
         if final_score >= 75: status = "EXCELLENT"
         elif final_score >= 60: status = "POTENTIAL"
         elif final_score >= 40: status = "CONSIDER"
 
-        # 8. Xây dựng bản nhận xét chi tiết (Detailed Critique)
+        # 9. Xây dựng bản nhận xét chi tiết (Detailed Critique)
         critique = []
-
-        # Dùng điểm đã chuẩn hóa (norm_semantic) thay vì raw_sim
-        # để tránh mâu thuẫn: "tương đồng 83% nhưng điểm chỉ có 31%"
         sim_percent = norm_semantic * 100
 
         if final_score >= 85:
-            critique.append(f"🌟 **Ứng viên xuất sắc.** Điểm tổng hợp đạt **{final_score:.1f}%** (Độ khớp AI ngữ nghĩa: {sim_percent:.1f}%).")
+            critique.append(f"🌟 **Ứng viên xuất sắc.** Điểm: **{final_score:.1f}%** (AI CV: {sim_percent:.1f}%{qa_critique}).")
 
             if not missing:
                 critique.append("Hồ sơ hoàn hảo, đáp ứng đầy đủ mọi yêu cầu kỹ thuật.")

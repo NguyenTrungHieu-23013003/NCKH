@@ -1,0 +1,57 @@
+====================================
+LÊ VĂN B
+Email: levanb@gmail.com | Phone: 0987654321
+====================================
+
+OBJECTIVE
+Web Developer with 4 years of experience specializing in PHP and Frontend technologies. Looking to transition into a Backend Engineer role to work with Python and modern cloud infrastructure.
+
+====================================
+PROFESSIONAL EXPERIENCE
+====================================
+
+Web Developer | CreativeAgency | Mar 2021 - Present
+- Developed various e-commerce websites and CMS using PHP, Laravel, and WordPress
+- Managed shared hosting environments and handled basic database migrations
+- Collaborated with design teams to implement responsive user interfaces using HTML/CSS and jQuery
+- Basics of Python: Completed online courses in Python development
+- Interested in learning AWS and Docker to improve deployment workflows
+
+Junior Web Developer | TechStart | Jan 2020 - Feb 2021
+- Maintained legacy PHP codebases and fixed bugs
+- Assisted in building simple REST APIs for mobile applications
+- Worked with MySQL for data storage but focused mainly on CRUD operations
+- Used Git for version control in a team of 5
+
+====================================
+TECHNICAL SKILLS
+====================================
+
+Languages: PHP, JavaScript, HTML, CSS, SQL (Basic)
+Frameworks: Laravel, WordPress, jQuery, Bootstrap
+Databases: MySQL, MariaDB
+Tools: Git, Postman, cPanel, FileZilla
+Familiar with: Python, Cloud concepts, Containerization theory
+
+====================================
+PROJECTS
+====================================
+
+Personal Blog Platform | 2022
+- Built a blogging system using Laravel and Vue.js
+- Implemented user authentication and comment system
+- Hosted on a VPS (Ubuntu)
+
+====================================
+EDUCATION
+====================================
+
+Bachelor of Science in Information Technology | City College | 2019
+- GPA: 3.2/4.0
+
+====================================
+LANGUAGES
+====================================
+
+- Vietnamese: Native
+- English: Intermediate (TOEIC 600)
