@@ -8,6 +8,8 @@ import {
   Trophy, Users, Filter, ChevronRight, GraduationCap, Clock, Lightbulb
 } from "lucide-react";
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+
 // ─── Types ───────────────────────────────────────────────
 type AppTab = "single" | "batch";
 type InputMode = "text" | "file";
@@ -55,7 +57,7 @@ function InputPanel({
         const form = new FormData();
         form.append("file", f);
         try {
-          const res = await fetch("http://localhost:5000/api/parse-file", { method: "POST", body: form });
+          const res = await fetch(`${API_BASE_URL}/api/parse-file`, { method: "POST", body: form });
           const data = await res.json();
           results.push({ name: f.name, text: data.text });
         } catch (e) { console.error(e); }
@@ -77,7 +79,7 @@ function InputPanel({
       onChange({ isLoading: true, error: "", fileName: "", text: "" });
       const form = new FormData(); form.append("file", f);
       try {
-        const res = await fetch("http://localhost:5000/api/parse-file", { method: "POST", body: form });
+        const res = await fetch(`${API_BASE_URL}/api/parse-file`, { method: "POST", body: form });
         const data = await res.json();
         onChange({ text: data.text, fileName: data.filename, wordCount: data.word_count, mode: "file", isLoading: false });
       } catch (err: any) { onChange({ isLoading: false, error: err.message }); }
@@ -166,7 +168,7 @@ export default function AI_CV_Matcher_Pro() {
 
       setAnalyzing(true); setShowResult(false);
       try {
-        const res = await fetch("http://localhost:5000/api/match", {
+        const res = await fetch(`${API_BASE_URL}/api/match`, {
           method: "POST", headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ 
             jd: jdPanel.text, 
@@ -195,7 +197,7 @@ export default function AI_CV_Matcher_Pro() {
       
       setAnalyzing(true); setShowResult(false);
       try {
-        const res = await fetch("http://localhost:5000/api/batch-match", {
+        const res = await fetch(`${API_BASE_URL}/api/batch-match`, {
           method: "POST", headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ 
             jd: jdPanel.text, 
@@ -213,7 +215,7 @@ export default function AI_CV_Matcher_Pro() {
     if (!jdPanel.text) return alert("Please provide JD first");
     setGeneratingQuestions(true);
     try {
-      const res = await fetch("http://localhost:5000/api/generate-questions", {
+      const res = await fetch(`${API_BASE_URL}/api/generate-questions`, {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ jd: jdPanel.text })
       });
@@ -253,7 +255,7 @@ export default function AI_CV_Matcher_Pro() {
     setBatchSuggData(null);
     
     try {
-      const res = await fetch("http://localhost:5000/api/suggest-cv-improvements", {
+      const res = await fetch(`${API_BASE_URL}/api/suggest-cv-improvements`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ jd: jdPanel.text, cv: cv.text })
@@ -277,7 +279,7 @@ export default function AI_CV_Matcher_Pro() {
     if (!cvPanel.text || !jdPanel.text) return alert("Please provide both CV and JD");
     setLoadingSuggestions(true);
     try {
-      const res = await fetch("http://localhost:5000/api/suggest-cv-improvements", {
+      const res = await fetch(`${API_BASE_URL}/api/suggest-cv-improvements`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ jd: jdPanel.text, cv: cvPanel.text })
